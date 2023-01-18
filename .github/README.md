@@ -61,10 +61,10 @@ my_playbook_repo to use the changes.
    $ cd my_playbook_repo
    ```
 
-2. Get all recent ans_bootstrap_run_playbook changes, rebased to one commit:
+2. Get all recent ans_bootstrap_run_playbook changes:
 
    ```shell
-   $ git submodule update --rebase
+   $ git submodule update --remote
    ```
 
 3. Commit submodule changes as a commit in my_playbook_repo:
