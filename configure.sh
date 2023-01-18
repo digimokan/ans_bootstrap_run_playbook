@@ -105,9 +105,6 @@ handle_download_and_update_roles() {
 
 handle_roles_dir() {
   roles_dir="${1}"
-  if [ ! -d "${roles_dir}" ]; then
-    quit_err_msg_with_help "roles_dir '${roles_dir}' does not exist" 1
-  fi
 }
 
 handle_run_playbook() {
