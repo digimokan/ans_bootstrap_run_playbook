@@ -112,7 +112,7 @@ handle_run_playbook() {
 }
 
 handle_extra_ansible_playbook_args() {
-  extra_ansible_playbook_args="${1}"
+  extra_ansible_playbook_args=" ${1}"
 }
 
 handle_unknown_option() {
@@ -166,7 +166,7 @@ change_to_playbook_dir() {
   fi
   try_cd_silent_with_exit \
     "cd ${playbook_dir}" \
-    "error attempting to cd to ${playbook_dir}" 1
+    "error attempting to cd to '${playbook_dir}'" 1
 }
 
 get_sudo_root_passwd_from_user() {
@@ -192,7 +192,7 @@ do_ugrade_ansible_packages() {
 
 do_download_and_update_roles() {
   try_silent_with_exit \
-    "${cmd_prefix}ansible-galaxy install --role-file requirements.yml --roles-path ${roles_dir} --force-with-deps" \
+    "${cmd_prefix}ansible-galaxy install --role-file requirements.yml --roles-path \"${roles_dir}\" --force-with-deps" \
     "error attempting to download roles and collections" 10
 }
 
@@ -200,7 +200,7 @@ do_run_playbook() {
   pb_cmd="ansible-playbook"
   pb_cmd="${pb_cmd} -i hosts"
   pb_cmd="${pb_cmd} --become-method=su"
-  pb_cmd="${pb_cmd} --extra-vars='ansible_become_password=${sudo_root_password} ${extra_ansible_playbook_args}'"
+  pb_cmd="${pb_cmd} --extra-vars='ansible_become_password=${sudo_root_password}${extra_ansible_playbook_args}'"
   pb_cmd="${pb_cmd} playbook.yml"
   try_silent_with_exit \
     "${pb_cmd}" \
