@@ -139,20 +139,6 @@ try_silent_with_exit() {
   cmd="${1}"
   err_msg="${2}"
   err_code="${3}"
-  # eval "${cmd}"
-  # testing!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  echo "TESTING: ${cmd}"
-  exit_code="${?}"
-  if [ "${exit_code}" != 0 ]; then
-    quit_err_msg_with_help "${err_msg}" "${err_code}"
-  fi
-}
-
-# TESTING FOR CD!!!!
-try_cd_silent_with_exit() {
-  cmd="${1}"
-  err_msg="${2}"
-  err_code="${3}"
   eval "${cmd}"
   exit_code="${?}"
   if [ "${exit_code}" != 0 ]; then
@@ -164,7 +150,7 @@ change_to_playbook_dir() {
   if [ "${playbook_dir}" = '' ]; then
     quit_err_msg_with_help "root-playbook-dir option must be specified"
   fi
-  try_cd_silent_with_exit \
+  try_silent_with_exit \
     "cd ${playbook_dir}" \
     "error attempting to cd to '${playbook_dir}'" 1
 }
