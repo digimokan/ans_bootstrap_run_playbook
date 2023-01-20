@@ -183,7 +183,7 @@ do_download_and_update_roles() {
 }
 
 do_run_playbook() {
-  pb_cmd="ansible-playbook"
+  pb_cmd="${cmd_prefix}ansible-playbook"
   pb_cmd="${pb_cmd} -i hosts"
   pb_cmd="${pb_cmd} --become-method=su"
   pb_cmd="${pb_cmd} --extra-vars='ansible_become_password=${sudo_root_password}${extra_ansible_playbook_args}'"
