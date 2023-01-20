@@ -166,7 +166,7 @@ get_sudo_root_passwd_from_user() {
   if [ "$(id -un)" = 'root' ]; then
     cmd_prefix=''
   else
-    cmd_prefix="echo ${sudo_root_password} | sudo -S "
+    cmd_prefix="echo '${sudo_root_password}' | sudo -S "
   fi
 }
 
