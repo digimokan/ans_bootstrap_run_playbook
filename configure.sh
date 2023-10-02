@@ -131,8 +131,8 @@ print_err_msg() {
 }
 
 quit_err_msg_with_help() {
-  print_err_msg "${1}"
-  print_usage "${2}"
+  print_err_msg "${1} (use -h option for help)"
+  exit "${2}"
 }
 
 try_silent_with_exit() {
