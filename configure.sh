@@ -7,7 +7,7 @@
 
 # User Script Options
 playbook_dir=''
-ugrade_ansible_packages='false'
+upgrade_ansible_packages='false'
 default_bootstrap_package_list='sysutils/ansible python'
 bootstrap_package_list="${default_bootstrap_package_list}"
 download_and_update_roles='false'
@@ -28,7 +28,7 @@ print_usage() {
   echo '  -u, --upgrade-ansible-packages'
   echo '      upgrade ansible (required for initial run, and after sys upgrades)'
   echo '  -p <list>, --ansible-packages-list=<list>'
-  echo "      list of space-separated pkgs for ugrade-ansible-packages (default: ${default_bootstrap_package_list})"
+  echo "      list of space-separated pkgs for upgrade-ansible-packages (default: ${default_bootstrap_package_list})"
   echo '  -r, --download-and-update-roles'
   echo '      download and update all roles used by the playbook'
   echo '  -t <dir>, --roles-dir=<dir>'
@@ -92,7 +92,7 @@ handle_root_playbook_dir() {
 }
 
 handle_upgrade_ansible_packages() {
-  ugrade_ansible_packages='true'
+  upgrade_ansible_packages='true'
 }
 
 handle_ansible_packages_list() {
@@ -170,7 +170,7 @@ get_sudo_root_passwd_from_user() {
   fi
 }
 
-do_ugrade_ansible_packages() {
+do_upgrade_ansible_packages() {
   try_silent_with_exit \
     "${cmd_prefix}pkg install --yes ${bootstrap_package_list}" \
     "error attempting to upgrade ansible" 5
@@ -197,8 +197,8 @@ main() {
   get_cmd_opts "$@"
   change_to_playbook_dir "$@"
   get_sudo_root_passwd_from_user "$@"
-  if [ "${ugrade_ansible_packages}" = 'true' ]; then
-    do_ugrade_ansible_packages "$@"
+  if [ "${upgrade_ansible_packages}" = 'true' ]; then
+    do_upgrade_ansible_packages "$@"
   fi
   if [ "${download_and_update_roles}" = 'true' ]; then
     do_download_and_update_roles "$@"
