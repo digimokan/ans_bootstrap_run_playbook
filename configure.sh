@@ -200,7 +200,7 @@ do_run_playbook() {
 }
 
 main() {
-  get_cmd_opts
+  get_cmd_opts "$@"
   check_running_as_root
   change_to_playbook_dir
 
