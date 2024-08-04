@@ -35,7 +35,7 @@ print_usage() {
   echo "      path to directory to download roles to, no trailing '/' (default: ${default_roles_dir})"
   echo '  -k, --run-playbook'
   echo '      run the playbook'
-  echo '  -a <args>, --extra-ansible-playbook-args=<dir>'
+  echo '  -a <args>, --extra-ansible-playbook-args=<args>'
   echo '      extra args to pass to ansible-playbook cmd'
   echo 'EXIT CODES:'
   echo '    0  ok'
@@ -135,10 +135,11 @@ quit_err_msg_with_help() {
   exit "${2}"
 }
 
-try_silent_with_exit() {
+try_silent_as_root() {
   cmd="${1}"
   err_msg="${2}"
   err_code="${3}"
+
   eval "${cmd}"
   exit_code="${?}"
   if [ "${exit_code}" != 0 ]; then
@@ -146,66 +147,73 @@ try_silent_with_exit() {
   fi
 }
 
+try_silent_as_normal_user() {
+  cmd="${1}"
+  err_msg="${2}"
+  err_code="${3}"
+
+  normal_user_name="$(logname)"
+  full_cmd="su - ${normal_user_name} -c \"${cmd}\""
+  eval "${full_cmd}"
+  exit_code="${?}"
+  if [ "${exit_code}" != 0 ]; then
+    quit_err_msg_with_help "${err_msg}" "${err_code}"
+  fi
+}
+
+check_running_as_root() {
+  if [ "$(id -un)" != 'root' ]; then
+    quit_err_msg_with_help "must run this script as root" 1
+  fi
+}
+
 change_to_playbook_dir() {
   if [ "${playbook_dir}" = '' ]; then
     quit_err_msg_with_help "root-playbook-dir option must be specified"
   fi
-  try_silent_with_exit \
+  try_silent_as_root \
     "cd ${playbook_dir}" \
     "error attempting to cd to '${playbook_dir}'" 1
 }
 
-get_sudo_root_passwd_from_user() {
-  # get the root password at command line
-  stty -echo
-  printf "Enter sudo (root) password: " >&2
-  read -r sudo_root_password
-  stty echo
-
-  # invoke all cmds *other than ansible-playbook* with sudo
-  if [ "$(id -un)" = 'root' ]; then
-    cmd_prefix=''
-  else
-    cmd_prefix="echo '${sudo_root_password}' | sudo -S "
-  fi
-}
-
 do_upgrade_ansible_packages() {
-  try_silent_with_exit \
-    "${cmd_prefix}pkg install --yes ${bootstrap_package_list}" \
+  try_silent_as_root \
+    "pkg install --yes ${bootstrap_package_list}" \
     "error attempting to upgrade ansible" 5
 }
 
 do_download_and_update_roles() {
-  try_silent_with_exit \
-    "ansible-galaxy install --role-file requirements.yml --roles-path \"${roles_dir}\" --force-with-deps" \
+  try_silent_as_normal_user \
+    "ansible-galaxy install --role-file requirements.yml --roles-path '${roles_dir}' --force-with-deps" \
     "error attempting to download roles and collections" 10
 }
 
 do_run_playbook() {
-  pb_cmd="${cmd_prefix}ansible-playbook"
-  pb_cmd="${pb_cmd} -i hosts"
+  pb_cmd="ansible-playbook"
+  pb_cmd="${pb_cmd} --inventory=hosts"
   pb_cmd="${pb_cmd} --become-method=su"
-  pb_cmd="${pb_cmd} --extra-vars='ansible_become_password=${sudo_root_password}${extra_ansible_playbook_args}'"
+  pb_cmd="${pb_cmd} --extra-vars='${extra_ansible_playbook_args}'"
   pb_cmd="${pb_cmd} playbook.yml"
-  try_silent_with_exit \
+  try_silent_as_root \
     "${pb_cmd}" \
     "error attempting to run playbook" 10
 }
 
 main() {
-  get_cmd_opts "$@"
-  change_to_playbook_dir "$@"
-  get_sudo_root_passwd_from_user "$@"
+  get_cmd_opts
+  check_running_as_root
+  change_to_playbook_dir
+
   if [ "${upgrade_ansible_packages}" = 'true' ]; then
-    do_upgrade_ansible_packages "$@"
+    do_upgrade_ansible_packages
   fi
   if [ "${download_and_update_roles}" = 'true' ]; then
-    do_download_and_update_roles "$@"
+    do_download_and_update_roles
   fi
   if [ "${run_playbook}" = 'true' ]; then
-    do_run_playbook "$@"
+    do_run_playbook
   fi
+
   exit 0
 }
 
