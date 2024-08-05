@@ -183,8 +183,9 @@ do_upgrade_ansible_packages() {
 }
 
 do_download_and_update_roles() {
+  req_file_path="${PWD}/requirements.yml"
   try_silent_as_normal_user \
-    "ansible-galaxy install --role-file requirements.yml --roles-path '${roles_dir}' --force-with-deps" \
+    "ansible-galaxy install --role-file '${req_file_path}' --roles-path '${roles_dir}' --force-with-deps" \
     "error attempting to download roles and collections" 10
 }
 
