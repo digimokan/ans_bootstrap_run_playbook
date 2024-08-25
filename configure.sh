@@ -152,7 +152,7 @@ try_silent_as_normal_user() {
   err_msg="${2}"
   err_code="${3}"
 
-  normal_user_name="$(logname)"
+  normal_user_name="$(who -am | cut -f1 -d' ')"
   full_cmd="su - ${normal_user_name} -c \"${cmd}\""
   eval "${full_cmd}"
   exit_code="${?}"
