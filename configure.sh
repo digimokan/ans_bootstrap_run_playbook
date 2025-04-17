@@ -172,7 +172,7 @@ change_to_playbook_dir() {
     quit_err_msg_with_help "root-playbook-dir option must be specified"
   fi
   try_silent_as_root \
-    "cd ${playbook_dir}" \
+    "cd \"${playbook_dir}\"" \
     "error attempting to cd to '${playbook_dir}'" 1
 }
 
